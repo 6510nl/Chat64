@@ -935,8 +935,10 @@ void loop() {
           // start byte 237 = C64 triggers call to receive connection status
           // ------------------------------------------------------------------------------
           sendByte(ResultColor);  // send color code for green if connected
+#ifdef debug
           Serial.print("237 = ");
           Serial.println(int(ResultColor));
+#endif
           send_String_to_c64(ServerConnectResult);
           break;
         }
