@@ -566,20 +566,18 @@ rts
     lda #20 ; sta $fb                             // Load 20 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 20
     displayText(text_account_menu,1,15)           // Display the menu title on line 1, row 15,
-    
+!ac_wifi_check:    
     lda HAVEWIFI
     cmp #1
     beq !+
     displayText(text_any_key,21,7)
-    displayText(text_error_no_internet,6,1)
+    displayText(text_error_no_internet,4,1)
     jsr !wait_for_a_key+
     jmp !mainmenu-
     
-    lda #10 ; sta $fb                             // Load 10 into accumulator and store it in zero page address $fb
+!:  lda #10 ; sta $fb                             // Load 10 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 8
- 
-      
-!:  displayText(text_account_mac,4,1)             // Display static text "mac address:" on line 4, row 1,  
+    displayText(text_account_mac,4,1)             // Display static text "mac address:" on line 4, row 1,  
     displayText(text_account_regid,6,1)           // Display static text "regid:" on line 6, row 1,  
     displayText(text_account_nick_name,8,1)       // Display static text "nickname:" on line 8, row 1,  
     displayText(text_account_menu_item_2,15,3)    // Display "[ F6 ] Factory defaults" on line 13, row 1. 
@@ -792,6 +790,9 @@ jsr !splitRXbuffer+                               // copy the first element to S
 // Check if we have Wifi
 //=========================================================================================================
 !checkWiFi:                                       // 
+    lda VICEMODE
+    cmp #1
+    beq !weHave_wifi+
     lda #0 
     sta HAVEWIFI
     lda #248
@@ -800,6 +801,7 @@ jsr !splitRXbuffer+                               // copy the first element to S
     lda RXBUFFER                                  // the first byte of RXBUFFER now contains 146 or 149
     cmp #149                                      // for Not connected or Connected
     bne !+                                        //
+!weHave_wifi:
     lda #1                                        //                                           
     sta HAVEWIFI                                  // We are connected, just return
 !:  rts                                           //
@@ -814,6 +816,7 @@ jsr !splitRXbuffer+                               // copy the first element to S
 !server_setup:                                    // 
     lda #255                                      // 
     sta DELAY                                     //
+    jsr !checkWiFi-                               //
     jsr !start_menu_screen-                       // 
     lda #8 ; sta $fb                              // Load 8 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 8
@@ -821,10 +824,17 @@ jsr !splitRXbuffer+                               // copy the first element to S
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 20
                                                   // 
     displayText(text_server_menu,1,13)            // Display the menu title on line 1, row 15   
-    jsr !display_F7_menuItem+                     // Display "[ F7 ] exit menu" on line 17, row 3
-                                                  // Now ask for the server ip/fqdn from ESP
+
+    lda HAVEWIFI                                  // check if we have wifi
+    cmp #1                                        // if yes, continue
+    beq !+                                        // if not, there is no need for server setup
+    ldx #6 ; jsr $e9ff                            // clear line 6
+    ldx #8 ; jsr $e9ff                            // clear line 8
+    jmp !ac_wifi_check-                           // tell the user to go back and check wifi setup
+
+!:                                                // Now ask for the server ip/fqdn from ESP
 //  jsr !callstatus+                              // Call the sub routine to get config status and Servername
-                                                  // 
+    jsr !display_F7_menuItem+                     // Display "[ F7 ] exit menu" on line 17, row 3                                                  // 
     displayText(SERVERNAME,4,9)                   // display the server name on screen
     jsr !wait_for_ready_to_receive+               // Prepare the ESP to receive
     lda #238                                      // Load 238 into accumulator
@@ -910,6 +920,9 @@ jsr !splitRXbuffer+                               // copy the first element to S
     jsr !delay+                                   // 
                                                   // 
 !connection_check:                                // are we connected to a chat server?
+    lda VICEMODE
+    cmp #1
+    beq !exit1+
     lda #237                                      // Load 237 in accumulator (get current connection status)
     sta CMD                                       // Store that in variable CMD
     jsr !send_start_byte_ff+                      // Call the sub routine to obtain connection status from esp32
@@ -932,6 +945,7 @@ jsr !splitRXbuffer+                               // copy the first element to S
     jsr !delay+                                   // and jump to the delay subroutine
     jsr !delay+                                   // 
     jsr !delay+                                   // 
+!exit1:
     jmp !server_setup_2-                          // 
 !Succes:                                          // 
     ldx #24 ; jsr $e9ff                           // Clear line 24 (where the connection status is)
@@ -2767,7 +2781,7 @@ rts                                               //
     beq !wait_message_complete-                   // stay in this loop until we get a response
 !exit:                                            // 
     rts                                           // return
-!vicemode:                                        // 
+                                                  // 
 !exittimeout:                                     //
     lda #2                                        // make the border red
     sta $d020                                     // for a short while
@@ -2781,6 +2795,7 @@ rts                                               //
     sta SPLITBUFFER                               // Empty and close the SPLITBUFFER
     lda #1                                        // set Timeouterror variable to 1
     sta TIMOUTERROR                               //
+!vicemode:
     rts                                           //
                                                   //
 //=========================================================================================================
