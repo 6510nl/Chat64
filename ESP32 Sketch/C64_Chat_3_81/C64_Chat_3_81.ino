@@ -17,7 +17,7 @@ bool invert_nmi_signal = false;     // READ THIS:  If this settings is wrong, th
                                     // set 'true' for pcb rev 3.7, 
                                     // set 'false' for rev 3.8
 
-//#define OTA_VERSION
+#define OTA_VERSION
 
 #ifdef VICE_MODE
 bool accept_serial_command = true;
@@ -672,14 +672,14 @@ void loop() {
             digitalWrite(CLED, LOW);
             sendByte(146);
             send_String_to_c64("Not Connected to Wifi");
-            Serial.println("Not Connected to Wifi");
           } else {
             wificonnected = 1;
             digitalWrite(CLED, HIGH);
             sendByte(149);
-            String wifi_status = "Connected with ip " + myLocalIp;
+            String wifi_status = "Connected with WiFi!";
+            if (myLocalIp != "0.0.0.0") wifi_status = "Connected with ip " + myLocalIp;
             send_String_to_c64(wifi_status);
-            Serial.println(wifi_status);
+            
           }
           break;
         }
@@ -935,10 +935,6 @@ void loop() {
           // start byte 237 = C64 triggers call to receive connection status
           // ------------------------------------------------------------------------------
           sendByte(ResultColor);  // send color code for green if connected
-#ifdef debug
-          Serial.print("237 = ");
-          Serial.println(int(ResultColor));
-#endif
           send_String_to_c64(ServerConnectResult);
           break;
         }
@@ -982,7 +978,7 @@ void loop() {
           userpageCount = 0;
           String ul1 = userPages[userpageCount];
           send_String_to_c64(ul1);
-          //Serial.println(ul1);
+          Serial.println(ul1);
           userpageCount++;
           break;
         }
@@ -1136,12 +1132,9 @@ void send_out_buffer_to_C64() {
   // send the content of the outbuffer to the C64
   for (int x = 0; x < outbuffersize - 1; x++) {
     sendByte(Ascii_to_screenCode(outbuffer[x]));
-    //Serial.print(int(outbuffer[x]));
-    //Serial.print(" ");
   }
   // all done, send end byte
   sendByte(128);
-  //Serial.println("128");
   outbuffersize = 0;
 }
 
