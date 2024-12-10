@@ -326,8 +326,7 @@ rts
     lda CONFIG_STATUS                             // 
     cmp #4                                        // F3 Allowed now?
     bne !keyinput-                                // No, back to keyinput
-    jmp !list_users+                              // Yes, jump to List  
-//    jmp !output_setup+                            // Yes, jump to output setup                                                                   
+    jmp !output_setup+                            // Yes, jump to output setup                                                                   
 !F4:cmp #138                                      // F4 key pressed?
     bne !F5+                                      // No, next
     jsr !callstatus+                              // Yes, check the configuration status
@@ -379,7 +378,6 @@ rts
 !wifi_setup:                                      //     
     lda #255                                      //
     sta DELAY                                     // 
-    
     jsr !start_menu_screen-                       // 
     lda #10 ; sta $fb                             // Load 8 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call draw_menu_line sub routine to draw a line on row 8
@@ -1125,9 +1123,6 @@ jsr !start_menu_screen-                           //
     lda #0                                        //   
     sta USER_LIST_FLAG                            // 
 !showusers:                                       //
-    lda VICEMODE
-    cmp #1
-    beq !keyinput+
     sta PAGE                                      // there can be 3 pages full of users, we start at 0 so we set the page number to 0
 !zp:                                              // 
     lda #234                                      // load the number #234    
@@ -1166,11 +1161,7 @@ jsr !start_menu_screen-                           //
     cmp #80                                       // 'p' key pressed?
     beq !prevpage+                                // if so, go to previous page
     cmp #134                                      // F3 pressed?
-    //beq !return_to_chat+                          // if so, return to chat window
-    beq !exit_menu+
-    cmp #136
-    beq !exit_menu+
-    jmp !keyinput-
+    beq !return_to_chat+                          // if so, return to chat window
                                                   // 
 !nextpage:                                        // 
     lda PAGE                                      // Load the Page number
@@ -1508,8 +1499,7 @@ rts
     cmp #0                                        // Compare it to zero (zero is the main chat screen), F7 does nothing in that screen
     beq !exit-                                    // If not equal, jump back up into the key input routine
     cmp #3                                        // 3 is the private chat screen
-    bne !+ 
-    jmp !exit-                                    // F7 does nothing in that screen
+    beq !exit-                                    // F7 does nothing in that screen
 !:  jmp !mainmenu-                                // return to the main menu
                                                   // 
 !exit_F6:                                         // 
@@ -1789,6 +1779,7 @@ rts
     sta PITCH                                     // 
     jsr !soundbell-                               // 
     rts                                           // 
+
 !soundbell3: 
     lda #36 
     sta PITCH
@@ -2849,7 +2840,7 @@ nmi:                                              // When the ESP32 loads a byte
 text_main_menu:               .byte 151; .text "MAIN MENU"; .byte 128
 text_menu_item_1:             .byte 147; .text "[ F1 ] Wifi Setup"; .byte 128
 text_menu_item_2:             .byte 147; .text "[ F2 ] Account Setup";.byte 128
-text_menu_item_3:             .byte 147; .text "[ F3 ] List Users";.byte 128
+text_menu_item_3:             .byte 147; .text "[ F3 ] Output Selection";.byte 128
 text_menu_item_4:             .byte 147; .text "[ F4 ] Server Setup";.byte 128
 text_menu_item_6:             .byte 147; .text "[ F5 ] Help";.byte 128
 text_menu_item_5:             .byte 147; .text "[ F6 ] About This Software";.byte 128
