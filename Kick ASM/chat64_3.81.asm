@@ -1086,16 +1086,15 @@ jsr !start_menu_screen-                           //
     lda #23 ; sta $fb                             // Load 23 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 23
     displayText(text_user_list,1,15)              // 
-    lda USER_LIST_FLAG                            // \
+    lda USER_LIST_FLAG                            // 
     cmp #1                                        //  \
     beq !textF3+                                  //   \
-    displayText(text_list_menu,24,0)              //    Depending if we come from the chat screen we load 
-    jmp !showusers+                               //    and show the correct footer menu  
+    displayText(text_list_menu,24,0)              //      Depending if we come from the chat screen we load 
+    jmp !showusers+                               //      and show the correct footer menu  
 !textF3:                                          //   /  
     displayText(text_list_menu2,24,0)             //  /
-    lda #0                                        //   
-    sta USER_LIST_FLAG                            // 
 !showusers:                                       //
+	lda #0										  //	
     sta PAGE                                      // there can be 3 pages full of users, we start at 0 so we set the page number to 0
 !zp:                                              // 
     lda #234                                      // load the number #234    
@@ -1118,11 +1117,18 @@ jsr !start_menu_screen-                           //
     beq !nextpage+                                // If true, go to the next page
     cmp #80                                       // 'p' key pressed?
     beq !prevpage+                                // if so, go to previous page
-    cmp #134                                      // F3 pressed?
-    beq !return_to_chat+                          // if so, return to chat window
-//    cmp #136                                      // F7 key pressed?
-//    beq !exit_menu+                               // If true, exit to main menu
-//    jmp !keyinput-                                // Ignore all other keys and wait for user input again
+    cmp #82	                                      // E pressed?
+    bne !+ 										  // No, check next	
+    lda #0										  // Yes, clear flag	
+    sta USER_LIST_FLAG							  //	
+    jmp !return_to_chat+                          // Return to chat window
+!:  cmp #136                                      // F7 key pressed?
+    bne !+ 										  // No, back to key input	
+    lda USER_LIST_FLAG                            // Yes, check were we came from
+    cmp #1										  // Did we come from the chat window?	
+    beq !+										  // Yes, Ignore F7	
+    jmp !exit_menu+                               // No, exit to main menu
+!:  jmp !keyinput-                                // Ignore all other keys and wait for user input again
                                                   // 
 !nextpage:                                        // 
     lda PAGE                                      // Load the Page number
@@ -1635,7 +1641,7 @@ rts
                                                   // 
 !exit:                                            // 
                                                   // 
-    lda TEMPCOLOR                                 // restore the current color
+    lda TEMPCOLOR                                // restore the current color
     sta $0286                                     // 
     rts                                           // 
 !error:                                           // 
@@ -2840,7 +2846,7 @@ text_error_vice_mode:         .byte 146; .text "Cartridge not installed."; .byte
 text_error_private_message:   .byte 146; .text "Don't send public msgs from priv. screen"; .byte 128
 text_F5_toggle:               .byte 151; .text "Private Messaging         [F5] Main Chat"; .byte 128
 text_list_menu:               .byte 147; .text "[P]revious      [F7] Exit         [N]ext"; .byte 128
-text_list_menu2:              .byte 147; .text "[P]revious   [F3]Return to Chat   [N]ext"; .byte 128
+text_list_menu2:              .byte 147; .text "[P]revious    [R]eturn to Chat   [N]ext"; .byte 128
 text_update_menu:             .byte 151; .text "UPDATE MENU"; .byte 128
 text_update_line1:            .byte 147; .text "There is a new version available"; .byte 128
 text_update_line2:            .byte 147; .text "Do you want to upgrade? Y/N"; .byte 128
