@@ -897,7 +897,7 @@ jsr !splitRXbuffer+                               // copy the first element to S
 !output_setup:                                    // This needs to be done after every reset.
                                                   // 
     jsr !start_menu_screen-                       // 
-    lda #7 ; sta $fb                              // Load 7 into accumulator and store it in zero page address $fb
+    lda #6 ; sta $fb                              // Load 7 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 8
     lda #22 ; sta $fb                             // Load 22 into accumulator and store it in zero page address $fb
     jsr !draw_menu_line+                          // Call the draw_menu_line sub routine to draw a line on row 20
@@ -933,12 +933,14 @@ jsr !splitRXbuffer+                               // copy the first element to S
     cmp #5										  // Is the printer there?
     bne !printer_found+
 	lda #0												
+	sta PRINTIT									  //
     sta PRINTER_ENABLED_FLAG					  // No device found, set printer output to off    
     displayText(text_printer_error,23,3)          // Display the text "Printer not found or offline"
     jmp !close+
 
 !printer_found:  
     lda #1										  // Set enabled flag	
+	sta PRINTIT									  //
     sta PRINTER_ENABLED_FLAG					  // and store it
     displayText(text_printer_enabled,23,3)        // Display the text "Printer connected!"
 	jmp !loopdeloop-
@@ -954,6 +956,7 @@ jsr !splitRXbuffer+                               // copy the first element to S
     bne !checkF7+                            	  // If no match loopy loopy
     lda #0		                                  // Set disabled flag
     sta PRINTER_ENABLED_FLAG                      // and store it
+	sta PRINTIT
     lda #4										  // Close output to printer
     jsr $ffc3									  //
     jsr $ffcc									  //
@@ -963,8 +966,11 @@ jsr !splitRXbuffer+                               // copy the first element to S
 !checkF7:  
 	cmp #136                                      // F7 key pressed?
     bne !+         					  			  // No, keep checking for keypress	  
+    lda #4										  // Close output to printer
+    jsr $ffc3									  //
+    jsr $ffcc	
 	jmp !mainmenu-								  // F7 Pressed, exit	
-!:	jmp !keyinput-  							  // had to implement jmp because of jump dist. error on BNE	
+!:	jmp !loopdeloop-  							  // had to implement jmp because of jump dist. error on BNE	
 
 //=========================================================================================================    
 //   UPDATE SCREEN   
@@ -1276,7 +1282,7 @@ rts
 !:  cmp #221                                      // Shift Minus gives a vertical bar, we replace it with underscore
     bne !+                                        // If it is any other key, skip to the next !: marker
     lda #228                                      // Change the character into an underscore
-    jmp !+
+    jmp !+										  //
 !:  
     jsr !preventGraphChars+
     cmp #133                                      // F1 key pressed?
@@ -2527,21 +2533,18 @@ rts
     beq !+
     rts
 !:
-//    lda #4									  // No need to do this every time
-//    ldx #4									  // No need to do this every time
+    lda #4									  	  // No need to do this every time?
+    ldx #4									      // No need to do this every time?
     ldy #7
     sty PRINTIT
-//    jsr $ffba  								  // No need to do this every time
-//    jsr $ffc0									  // No need to do this every time
+    jsr $ffba  								      // No need to do this every time?
+    jsr $ffc0									  // No need to do this every time?
     ldx #4
     jsr $ffc9									  // We leave in this one, in case the printer is	
     cmp #5										  // switched off unexpectedly
     bne !printer_ready+							  // If true, all is OK, print the messagage
 	lda #0										  // If false, we disable the printer output		
-    sta PRINTER_ENABLED_FLAG					  // No device found, set printer output to off    
-	lda #4										  // Close input and output channels	
-	jsr $ffc3									  //	
-	jsr $ffcc									  //
+    sta PRINTER_ENABLED_FLAG					  // No device found, set printer output to off    									  //
     jmp !+										  // And return to caller
     
 !printer_ready:
@@ -2549,7 +2552,10 @@ rts
     lda #<PRINTERBUFFER							  // All ok, print the message!
     ldy #>PRINTERBUFFER
     jsr $ab1e
-!:  rts											  // Return to caller	
+!:  lda #4										  // Close input and output channels	
+	jsr $ffc3									  //	
+	jsr $ffcc
+rts											  	  // Return to caller	
 
 //=========================================================================================================
 // SUB ROUTINE, DELAY
