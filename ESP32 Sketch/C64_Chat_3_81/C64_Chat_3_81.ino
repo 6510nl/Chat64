@@ -438,6 +438,7 @@ void loop() {
           // start byte 254 = C64 triggers call to the website for new public message
           // ------------------------------------------------------------------------------
           if (first_check ==0) first_check=millis();
+          pastMatrix=true;
           // send urgent messages first
           doUrgentMessage(); 
           // if the user list is empty, get the list
@@ -677,9 +678,10 @@ void loop() {
             wificonnected = 1;
             digitalWrite(CLED, HIGH);
             sendByte(149);
-            String wifi_status = "Connected with ip " + myLocalIp;
+            String wifi_status = "Connected with WiFi!";
+            if (myLocalIp != "0.0.0.0") wifi_status = "Connected with ip " + myLocalIp;
             send_String_to_c64(wifi_status);
-            Serial.println(wifi_status);
+            
           }
           break;
         }
