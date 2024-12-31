@@ -6,7 +6,7 @@
 //#define debug
 
 // Uncomment to enable VICE support
-// #define VICE_MODE
+#define VICE_MODE
 // on esp32 my uart is connected like this
 // black : pin gnd
 // white : pin 17
