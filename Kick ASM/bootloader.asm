@@ -52,13 +52,12 @@ warmstart:
 !wait:                    // We just wait here
   ldx #$00
 !:
-  lda $00,x
-  sta $0400,x
-
-  lda $de00,x
-  sta $0600,x
-  lda $df00,x
-  sta $0700,x
+  lda $00,x               // load $0000 - $00ff
+  sta $0500,x             // store on 1st part of the screen
+  lda $de00,x             // load $de00 - $deff
+  sta $0600,x             // store on 2nd part of the screen
+  lda $df00,x             // load $de00 - $deff
+  sta $0700,x             // store on 3rd part of the screen
   inx
   bne !-
   lda $02                 // until the value of $02 is zero
