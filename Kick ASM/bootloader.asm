@@ -50,6 +50,17 @@ warmstart:
 
                           // All the real actions is interupt driven, through the NMI routine
 !wait:                    // We just wait here
+  ldx #$00
+!:
+  lda $00,x
+  sta $0400,x
+
+  lda $de00,x
+  sta $0600,x
+  lda $df00,x
+  sta $0700,x
+  inx
+  bne !-
   lda $02                 // until the value of $02 is zero
   cmp #0                  //
   beq !run+               // that means all bytes have been received
