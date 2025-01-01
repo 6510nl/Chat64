@@ -1,5 +1,12 @@
+# Local development environment
 
-| CP2101 | WROOM-32 |
+## WHY
+
+## WHAT
+
+## HOW
+
+| CP2102 | WROOM-32 |
 | --- | --- |
 | RXI | SD2 |
 | TXO | CMD |
