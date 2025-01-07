@@ -3,7 +3,8 @@
 #include "Arduino.h"
 #define uromVersion "3.79"
 #define SwVersion "3.83"
-//#define debug
+
+#define debug
 
 // Uncomment to enable VICE support
 #define VICE_MODE
