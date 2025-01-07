@@ -21,6 +21,29 @@ Please note: the right side of the WROOM32 image is backside which has the pin l
 
 ## HOW
 
+### Compile the ESP32 Sketch to the ESP32 WROOM 32 board
+
+Ensure that the ```ESP32 Sketch/C64_Chat_3_82/common.h``` file has the ```#define VICE_MODE``` not commented, by using ```//``` out. See example below.
+
+Content of ```common.h``` file of the ESP32 sketch project.
+    #ifndef COMMON_H_
+    #define COMMON_H_
+    #include "Arduino.h"
+    #define uromVersion "3.79"
+    #define SwVersion "3.83"
+    //#define debug
+
+    // Uncomment to enable VICE support
+    #define VICE_MODE
+    // on esp32 my uart is connected like this
+    // black : pin gnd
+    // white : pin 17
+    // green : pin 16
+    //
+
+    #endif //COMMON_H_
+
+
 ### Ensure you can communicate over COM ports
 
 ```sudo usermod -aG dialout $USER```
