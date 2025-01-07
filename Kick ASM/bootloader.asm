@@ -48,15 +48,8 @@ warmstart:
   lda #100
   sta $de00               // write byte 100 to IO1
 
-  ldx #$00      //debug
-
                           // All the real actions is interupt driven, through the NMI routine
 !wait:                    // We just wait here
-
-  lda $02       //debug
-  sta $0400,x   //debug
-  inx           //debug
-
   lda $02                 // until the value of $02 is zero
   cmp #0                  //
   beq !run+               // that means all bytes have been received
