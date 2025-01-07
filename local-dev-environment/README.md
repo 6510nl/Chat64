@@ -23,7 +23,9 @@ Please note: the right side of the WROOM32 image is backside which has the pin l
 
 ### Compile the ESP32 Sketch to the ESP32 WROOM 32 board
 
-Ensure that the ```ESP32 Sketch/C64_Chat_3_82/common.h``` file has the ```#define VICE_MODE``` not commented, by using ```//``` out. See example below.
+Note: ensure that the ```ESP32 Sketch/C64_Chat_3_82/common.h``` file has the ```#define VICE_MODE``` not commented out, by using ```//```.
+
+See example below;
 
 Content of ```common.h``` file of the ESP32 sketch project.
     #ifndef COMMON_H_
